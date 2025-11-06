@@ -30,12 +30,12 @@ const getAccountIcon = (type: string) => {
 export const Accounts = ({ accounts, onAddAccount }: AccountsProps) => {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
-          <p className="text-muted-foreground">Manage your financial accounts</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Accounts</h1>
+          <p className="text-sm text-muted-foreground">Manage your financial accounts</p>
         </div>
-        <Button onClick={onAddAccount}>
+        <Button onClick={onAddAccount} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Add Account
         </Button>

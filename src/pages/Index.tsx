@@ -4,9 +4,8 @@ import { Accounts } from "@/components/Accounts";
 import { Transactions } from "@/components/Transactions";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
-import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Wallet, Receipt } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 type View = "dashboard" | "accounts" | "transactions";
 
@@ -89,64 +88,43 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-sidebar text-sidebar-foreground p-6 flex flex-col">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-sidebar-primary-foreground">FinanceApp</h1>
-          <p className="text-sm text-sidebar-foreground/60 mt-1">Personal Finance Manager</p>
+    <SidebarProvider defaultOpen={false}>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar currentView={currentView} onViewChange={setCurrentView} />
+
+        <div className="flex-1 flex flex-col w-full">
+          {/* Mobile Header */}
+          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:hidden">
+            <SidebarTrigger />
+            <h2 className="font-semibold capitalize">{currentView}</h2>
+          </header>
+
+          {/* Desktop Header */}
+          <header className="sticky top-0 z-10 hidden lg:flex h-14 items-center gap-4 border-b bg-background px-6">
+            <SidebarTrigger />
+            <h2 className="font-semibold capitalize">{currentView}</h2>
+          </header>
+
+          {/* Main Content */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background overflow-auto">
+            {renderContent()}
+          </main>
         </div>
 
-        <nav className="space-y-2 flex-1">
-          <Button
-            variant={currentView === "dashboard" ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => setCurrentView("dashboard")}
-          >
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            Dashboard
-          </Button>
-          <Button
-            variant={currentView === "accounts" ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => setCurrentView("accounts")}
-          >
-            <Wallet className="mr-2 h-4 w-4" />
-            Accounts
-          </Button>
-          <Button
-            variant={currentView === "transactions" ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => setCurrentView("transactions")}
-          >
-            <Receipt className="mr-2 h-4 w-4" />
-            Transactions
-          </Button>
-        </nav>
-
-        <div className="pt-6 border-t border-sidebar-border">
-          <p className="text-xs text-sidebar-foreground/60">© 2024 FinanceApp</p>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-8 bg-background">
-        {renderContent()}
-      </main>
-
-      {/* Dialogs */}
-      <AddAccountDialog
-        open={showAddAccount}
-        onOpenChange={setShowAddAccount}
-        onAddAccount={handleAddAccount}
-      />
-      <AddTransactionDialog
-        open={showAddTransaction}
-        onOpenChange={setShowAddTransaction}
-        accounts={accounts}
-        onAddTransaction={handleAddTransaction}
-      />
-    </div>
+        {/* Dialogs */}
+        <AddAccountDialog
+          open={showAddAccount}
+          onOpenChange={setShowAddAccount}
+          onAddAccount={handleAddAccount}
+        />
+        <AddTransactionDialog
+          open={showAddTransaction}
+          onOpenChange={setShowAddTransaction}
+          accounts={accounts}
+          onAddTransaction={handleAddTransaction}
+        />
+      </div>
+    </SidebarProvider>
   );
 };
 
