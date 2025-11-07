@@ -10,21 +10,33 @@ import {
 } from "@/components/ui/table";
 import { Plus } from "lucide-react";
 
+interface Account {
+  id: string;
+  name: string;
+  balance: number;
+  type: string;
+}
+
 interface Transaction {
   id: string;
   description: string;
   amount: number;
   date: string;
   category: string;
-  account: string;
+  account_id: string;
 }
 
 interface TransactionsProps {
   transactions: Transaction[];
+  accounts: Account[];
   onAddTransaction: () => void;
 }
 
-export const Transactions = ({ transactions, onAddTransaction }: TransactionsProps) => {
+export const Transactions = ({ transactions, accounts, onAddTransaction }: TransactionsProps) => {
+  const getAccountName = (accountId: string) => {
+    const account = accounts.find(a => a.id === accountId);
+    return account?.name || "Unknown";
+  };
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -63,7 +75,7 @@ export const Transactions = ({ transactions, onAddTransaction }: TransactionsPro
                         <div>
                           <div>{transaction.description}</div>
                           <div className="sm:hidden text-xs text-muted-foreground mt-1">
-                            {transaction.category} • {transaction.account}
+                            {transaction.category} • {getAccountName(transaction.account_id)}
                           </div>
                         </div>
                       </TableCell>
@@ -72,7 +84,7 @@ export const Transactions = ({ transactions, onAddTransaction }: TransactionsPro
                           {transaction.category}
                         </span>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell text-sm">{transaction.account}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">{getAccountName(transaction.account_id)}</TableCell>
                       <TableCell className={`text-right font-semibold text-sm ${transaction.amount >= 0 ? "text-success" : "text-destructive"}`}>
                         {transaction.amount >= 0 ? "+" : "-"}$
                         {Math.abs(transaction.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}

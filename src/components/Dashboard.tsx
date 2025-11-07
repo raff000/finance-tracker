@@ -14,6 +14,7 @@ interface Transaction {
   amount: number;
   date: string;
   category: string;
+  account_id: string;
 }
 
 interface DashboardProps {

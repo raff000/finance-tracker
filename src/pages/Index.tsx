@@ -1,55 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Dashboard } from "@/components/Dashboard";
 import { Accounts } from "@/components/Accounts";
 import { Transactions } from "@/components/Transactions";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
+import { PreferencesDialog } from "@/components/PreferencesDialog";
 import { AppSidebar } from "@/components/AppSidebar";
+import { UserMenu } from "@/components/UserMenu";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { useProfile } from "@/hooks/useProfile";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useTransactions } from "@/hooks/useTransactions";
+import { Session } from "@supabase/supabase-js";
 
 type View = "dashboard" | "accounts" | "transactions";
-
-interface Account {
-  id: string;
-  name: string;
-  balance: number;
-  type: string;
-}
-
-interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  date: string;
-  category: string;
-  account: string;
-}
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const navigate = useNavigate();
 
-  const [accounts, setAccounts] = useState<Account[]>([
-    { id: "1", name: "Main Checking", balance: 5420.50, type: "Checking" },
-    { id: "2", name: "Savings Account", balance: 12350.00, type: "Savings" },
-    { id: "3", name: "Credit Card", balance: -1250.30, type: "Credit" },
-  ]);
+  const { data: profile, refetch: refetchProfile } = useProfile(session?.user?.id);
+  const { data: accounts = [], addAccount, isAddingAccount } = useAccounts(session?.user?.id);
+  const { data: transactions = [], addTransaction, isAddingTransaction } = useTransactions(session?.user?.id);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    { id: "1", description: "Salary Deposit", amount: 3500.00, date: "2024-01-15", category: "Income", account: "Main Checking" },
-    { id: "2", description: "Grocery Store", amount: -125.50, date: "2024-01-14", category: "Food", account: "Credit Card" },
-    { id: "3", description: "Electric Bill", amount: -89.99, date: "2024-01-13", category: "Bills", account: "Main Checking" },
-    { id: "4", description: "Restaurant", amount: -65.00, date: "2024-01-12", category: "Food", account: "Credit Card" },
-    { id: "5", description: "Gas Station", amount: -45.20, date: "2024-01-11", category: "Transport", account: "Main Checking" },
-  ]);
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        if (!session) {
+          navigate("/auth");
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleAddAccount = (newAccount: { name: string; balance: number; type: string }) => {
-    const account: Account = {
-      id: Date.now().toString(),
-      ...newAccount,
-    };
-    setAccounts([...accounts, account]);
+    addAccount(newAccount);
   };
 
   const handleAddTransaction = (newTransaction: {
@@ -59,12 +62,19 @@ const Index = () => {
     category: string;
     account: string;
   }) => {
-    const transaction: Transaction = {
-      id: Date.now().toString(),
+    // Find the account to get its ID
+    const account = accounts.find(a => a.name === newTransaction.account);
+    if (!account) return;
+
+    addTransaction({
       ...newTransaction,
-    };
-    setTransactions([transaction, ...transactions]);
+      account_id: account.id,
+    });
   };
+
+  if (!session) {
+    return null; // Will redirect to auth
+  }
 
   const renderContent = () => {
     switch (currentView) {
@@ -78,7 +88,8 @@ const Index = () => {
       case "transactions":
         return (
           <Transactions 
-            transactions={transactions} 
+            transactions={transactions}
+            accounts={accounts}
             onAddTransaction={() => setShowAddTransaction(true)} 
           />
         );
@@ -96,13 +107,15 @@ const Index = () => {
           {/* Mobile Header */}
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:hidden">
             <SidebarTrigger />
-            <h2 className="font-semibold capitalize">{currentView}</h2>
+            <h2 className="font-semibold capitalize flex-1">{currentView}</h2>
+            <UserMenu profile={profile} onOpenPreferences={() => setShowPreferences(true)} />
           </header>
 
           {/* Desktop Header */}
           <header className="sticky top-0 z-10 hidden lg:flex h-14 items-center gap-4 border-b bg-background px-6">
             <SidebarTrigger />
-            <h2 className="font-semibold capitalize">{currentView}</h2>
+            <h2 className="font-semibold capitalize flex-1">{currentView}</h2>
+            <UserMenu profile={profile} onOpenPreferences={() => setShowPreferences(true)} />
           </header>
 
           {/* Main Content */}
@@ -122,6 +135,12 @@ const Index = () => {
           onOpenChange={setShowAddTransaction}
           accounts={accounts}
           onAddTransaction={handleAddTransaction}
+        />
+        <PreferencesDialog
+          open={showPreferences}
+          onOpenChange={setShowPreferences}
+          profile={profile}
+          onProfileUpdate={refetchProfile}
         />
       </div>
     </SidebarProvider>
