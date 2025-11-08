@@ -9,6 +9,7 @@ import { AddTransactionDialog } from "@/components/AddTransactionDialog";
 import { PreferencesDialog } from "@/components/PreferencesDialog";
 import { AppSidebar } from "@/components/AppSidebar";
 import { UserMenu } from "@/components/UserMenu";
+import AuthDialog from "@/components/AuthDialog";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAccounts } from "@/hooks/useAccounts";
@@ -22,6 +23,7 @@ const Index = () => {
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
 
@@ -34,18 +36,14 @@ const Index = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        if (!session) {
-          navigate("/auth");
-        }
+        setShowAuth(!session);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate("/auth");
-      }
+      setShowAuth(!session);
     });
 
     return () => subscription.unsubscribe();
@@ -73,7 +71,7 @@ const Index = () => {
   };
 
   if (!session) {
-    return null; // Will redirect to auth
+    return <AuthDialog open={showAuth} onOpenChange={setShowAuth} />;
   }
 
   const renderContent = () => {
@@ -142,6 +140,7 @@ const Index = () => {
           profile={profile}
           onProfileUpdate={refetchProfile}
         />
+        <AuthDialog open={showAuth} onOpenChange={setShowAuth} />
       </div>
     </SidebarProvider>
   );
