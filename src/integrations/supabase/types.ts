@@ -18,8 +18,12 @@ export type Database = {
         Row: {
           balance: number
           created_at: string
+          currency: string
           id: string
           name: string
+          notes: string | null
+          opening_date: string | null
+          status: string
           type: string
           updated_at: string
           user_id: string
@@ -27,8 +31,12 @@ export type Database = {
         Insert: {
           balance?: number
           created_at?: string
+          currency?: string
           id?: string
           name: string
+          notes?: string | null
+          opening_date?: string | null
+          status?: string
           type: string
           updated_at?: string
           user_id: string
@@ -36,8 +44,12 @@ export type Database = {
         Update: {
           balance?: number
           created_at?: string
+          currency?: string
           id?: string
           name?: string
+          notes?: string | null
+          opening_date?: string | null
+          status?: string
           type?: string
           updated_at?: string
           user_id?: string

@@ -24,7 +24,15 @@ export const useAccounts = (userId: string | undefined) => {
   });
 
   const addAccountMutation = useMutation({
-    mutationFn: async (newAccount: { name: string; balance: number; type: string }) => {
+    mutationFn: async (newAccount: { 
+      name: string; 
+      balance: number; 
+      type: string;
+      opening_date: string;
+      currency: string;
+      notes?: string;
+      status: string;
+    }) => {
       if (!userId) throw new Error("User not authenticated");
 
       const { data, error } = await supabase

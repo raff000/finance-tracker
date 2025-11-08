@@ -49,7 +49,15 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleAddAccount = (newAccount: { name: string; balance: number; type: string }) => {
+  const handleAddAccount = (newAccount: { 
+    name: string; 
+    balance: number; 
+    type: string;
+    opening_date: string;
+    currency: string;
+    notes?: string;
+    status: string;
+  }) => {
     addAccount(newAccount);
   };
 
