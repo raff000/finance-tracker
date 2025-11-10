@@ -32,7 +32,7 @@ interface AddTransactionDialogProps {
     amount: number;
     date: string;
     category: string;
-    account: string;
+    account_id: string;
   }) => void;
 }
 
@@ -46,23 +46,23 @@ export const AddTransactionDialog = ({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [category, setCategory] = useState("");
-  const [account, setAccount] = useState("");
+  const [accountId, setAccountId] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (description && amount && date && category && account) {
+    if (description && amount && date && category && accountId) {
       onAddTransaction({
         description,
         amount: parseFloat(amount),
         date,
         category,
-        account,
+        account_id: accountId,
       });
       setDescription("");
       setAmount("");
       setDate(new Date().toISOString().split("T")[0]);
       setCategory("");
-      setAccount("");
+      setAccountId("");
       onOpenChange(false);
     }
   };
@@ -130,13 +130,13 @@ export const AddTransactionDialog = ({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="account">Account</Label>
-              <Select value={account} onValueChange={setAccount} required>
+              <Select value={accountId} onValueChange={setAccountId} required>
                 <SelectTrigger id="account">
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map((acc) => (
-                    <SelectItem key={acc.id} value={acc.name}>
+                    <SelectItem key={acc.id} value={acc.id}>
                       {acc.name}
                     </SelectItem>
                   ))}

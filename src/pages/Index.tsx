@@ -66,16 +66,9 @@ const Index = () => {
     amount: number;
     date: string;
     category: string;
-    account: string;
+    account_id: string;
   }) => {
-    // Find the account to get its ID
-    const account = accounts.find(a => a.name === newTransaction.account);
-    if (!account) return;
-
-    addTransaction({
-      ...newTransaction,
-      account_id: account.id,
-    });
+    addTransaction(newTransaction);
   };
 
   if (!session) {
