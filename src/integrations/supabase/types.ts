@@ -16,39 +16,93 @@ export type Database = {
     Tables: {
       accounts: {
         Row: {
+          apr: number | null
+          auto_renew: boolean | null
           balance: number
+          bank_name: string | null
+          collateral: string | null
           created_at: string
           currency: string
+          cut_day: number | null
+          due_date: string | null
+          grace_period: number | null
           id: string
+          interest_rate: number | null
+          investment_length: string | null
+          late_payment_interest: number | null
+          loan_term: string | null
           name: string
           notes: string | null
           opening_date: string | null
+          overdue_interest_rate: number | null
+          overdue_penalty: number | null
+          payment_reminder: boolean | null
+          principal: number | null
+          reinvest_interest: boolean | null
+          reminder_days_before: number | null
+          repayment_structure: string | null
           status: string
           type: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          apr?: number | null
+          auto_renew?: boolean | null
           balance?: number
+          bank_name?: string | null
+          collateral?: string | null
           created_at?: string
           currency?: string
+          cut_day?: number | null
+          due_date?: string | null
+          grace_period?: number | null
           id?: string
+          interest_rate?: number | null
+          investment_length?: string | null
+          late_payment_interest?: number | null
+          loan_term?: string | null
           name: string
           notes?: string | null
           opening_date?: string | null
+          overdue_interest_rate?: number | null
+          overdue_penalty?: number | null
+          payment_reminder?: boolean | null
+          principal?: number | null
+          reinvest_interest?: boolean | null
+          reminder_days_before?: number | null
+          repayment_structure?: string | null
           status?: string
           type: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          apr?: number | null
+          auto_renew?: boolean | null
           balance?: number
+          bank_name?: string | null
+          collateral?: string | null
           created_at?: string
           currency?: string
+          cut_day?: number | null
+          due_date?: string | null
+          grace_period?: number | null
           id?: string
+          interest_rate?: number | null
+          investment_length?: string | null
+          late_payment_interest?: number | null
+          loan_term?: string | null
           name?: string
           notes?: string | null
           opening_date?: string | null
+          overdue_interest_rate?: number | null
+          overdue_penalty?: number | null
+          payment_reminder?: boolean | null
+          principal?: number | null
+          reinvest_interest?: boolean | null
+          reminder_days_before?: number | null
+          repayment_structure?: string | null
           status?: string
           type?: string
           updated_at?: string

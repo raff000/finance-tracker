@@ -57,6 +57,24 @@ const Index = () => {
     currency: string;
     notes?: string;
     status: string;
+    bank_name?: string;
+    cut_day?: number;
+    investment_length?: string;
+    interest_rate?: number;
+    due_date?: string;
+    auto_renew?: boolean;
+    reinvest_interest?: boolean;
+    grace_period?: number;
+    payment_reminder?: boolean;
+    reminder_days_before?: number;
+    overdue_interest_rate?: number;
+    overdue_penalty?: number;
+    principal?: number;
+    apr?: number;
+    loan_term?: string;
+    repayment_structure?: string;
+    collateral?: string;
+    late_payment_interest?: number;
   }) => {
     addAccount(newAccount);
   };
