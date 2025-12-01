@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Wallet, CreditCard, PiggyBank } from "lucide-react";
+import { Plus, Banknote, PiggyBank, TrendingUp, CreditCard, Landmark, FileWarning, Wallet } from "lucide-react";
 
 interface Account {
   id: string;
@@ -15,13 +15,19 @@ interface AccountsProps {
 }
 
 const getAccountIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case "checking":
-      return <Wallet className="h-5 w-5" />;
-    case "savings":
+  switch (type) {
+    case "Cash":
+      return <Banknote className="h-5 w-5" />;
+    case "Savings":
       return <PiggyBank className="h-5 w-5" />;
-    case "credit":
+    case "Investment":
+      return <TrendingUp className="h-5 w-5" />;
+    case "Credit Cards":
       return <CreditCard className="h-5 w-5" />;
+    case "Loan":
+      return <Landmark className="h-5 w-5" />;
+    case "Liabilities":
+      return <FileWarning className="h-5 w-5" />;
     default:
       return <Wallet className="h-5 w-5" />;
   }

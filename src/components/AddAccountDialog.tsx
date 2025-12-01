@@ -19,10 +19,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface AddAccountDialogProps {
   open: boolean;
@@ -35,10 +36,58 @@ interface AddAccountDialogProps {
     currency: string;
     notes?: string;
     status: string;
+    // Savings & shared fields
+    bank_name?: string;
+    cut_day?: number;
+    // Investment fields
+    investment_length?: string;
+    interest_rate?: number;
+    due_date?: string;
+    auto_renew?: boolean;
+    reinvest_interest?: boolean;
+    // Credit Card fields
+    grace_period?: number;
+    payment_reminder?: boolean;
+    reminder_days_before?: number;
+    overdue_interest_rate?: number;
+    overdue_penalty?: number;
+    // Loan fields
+    principal?: number;
+    apr?: number;
+    loan_term?: string;
+    repayment_structure?: string;
+    collateral?: string;
+    late_payment_interest?: number;
   }) => void;
 }
 
+const ACCOUNT_TYPES = [
+  "Cash",
+  "Savings",
+  "Investment",
+  "Credit Cards",
+  "Loan",
+  "Liabilities",
+];
+
+const INVESTMENT_LENGTHS = [
+  "30 days",
+  "60 days",
+  "90 days",
+  "6 months",
+  "1 year",
+  "2 years",
+];
+
+const REPAYMENT_STRUCTURES = [
+  "Fixed",
+  "Variable",
+  "Interest-only",
+  "Balloon",
+];
+
 export const AddAccountDialog = ({ open, onOpenChange, onAddAccount }: AddAccountDialogProps) => {
+  // Basic fields
   const [name, setName] = useState("");
   const [balance, setBalance] = useState("");
   const [type, setType] = useState("");
@@ -47,10 +96,86 @@ export const AddAccountDialog = ({ open, onOpenChange, onAddAccount }: AddAccoun
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("active");
 
+  // Shared fields
+  const [bankName, setBankName] = useState("");
+  const [cutDay, setCutDay] = useState("");
+
+  // Investment fields
+  const [investmentLength, setInvestmentLength] = useState("");
+  const [interestRate, setInterestRate] = useState("");
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [autoRenew, setAutoRenew] = useState(false);
+  const [reinvestInterest, setReinvestInterest] = useState(false);
+
+  // Credit Card fields
+  const [gracePeriod, setGracePeriod] = useState("");
+  const [paymentReminder, setPaymentReminder] = useState(false);
+  const [reminderDaysBefore, setReminderDaysBefore] = useState("");
+  const [overdueInterestRate, setOverdueInterestRate] = useState("");
+  const [overduePenalty, setOverduePenalty] = useState("");
+
+  // Loan fields
+  const [principal, setPrincipal] = useState("");
+  const [apr, setApr] = useState("");
+  const [loanTerm, setLoanTerm] = useState("");
+  const [repaymentStructure, setRepaymentStructure] = useState("");
+  const [collateral, setCollateral] = useState("");
+  const [latePaymentInterest, setLatePaymentInterest] = useState("");
+
+  // Reset type-specific fields when type changes
+  useEffect(() => {
+    setBankName("");
+    setCutDay("");
+    setInvestmentLength("");
+    setInterestRate("");
+    setDueDate(undefined);
+    setAutoRenew(false);
+    setReinvestInterest(false);
+    setGracePeriod("");
+    setPaymentReminder(false);
+    setReminderDaysBefore("");
+    setOverdueInterestRate("");
+    setOverduePenalty("");
+    setPrincipal("");
+    setApr("");
+    setLoanTerm("");
+    setRepaymentStructure("");
+    setCollateral("");
+    setLatePaymentInterest("");
+  }, [type]);
+
+  const resetForm = () => {
+    setName("");
+    setBalance("");
+    setType("");
+    setOpeningDate(new Date());
+    setCurrency("USD");
+    setNotes("");
+    setStatus("active");
+    setBankName("");
+    setCutDay("");
+    setInvestmentLength("");
+    setInterestRate("");
+    setDueDate(undefined);
+    setAutoRenew(false);
+    setReinvestInterest(false);
+    setGracePeriod("");
+    setPaymentReminder(false);
+    setReminderDaysBefore("");
+    setOverdueInterestRate("");
+    setOverduePenalty("");
+    setPrincipal("");
+    setApr("");
+    setLoanTerm("");
+    setRepaymentStructure("");
+    setCollateral("");
+    setLatePaymentInterest("");
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name && balance && type && openingDate) {
-      onAddAccount({
+      const accountData: Parameters<typeof onAddAccount>[0] = {
         name,
         balance: parseFloat(balance),
         type,
@@ -58,21 +183,348 @@ export const AddAccountDialog = ({ open, onOpenChange, onAddAccount }: AddAccoun
         currency,
         notes: notes || undefined,
         status,
-      });
-      setName("");
-      setBalance("");
-      setType("");
-      setOpeningDate(new Date());
-      setCurrency("USD");
-      setNotes("");
-      setStatus("active");
+      };
+
+      // Add type-specific fields
+      if (type === "Savings") {
+        accountData.bank_name = bankName || undefined;
+        accountData.cut_day = cutDay ? parseInt(cutDay) : undefined;
+      } else if (type === "Investment") {
+        accountData.bank_name = bankName || undefined;
+        accountData.investment_length = investmentLength || undefined;
+        accountData.interest_rate = interestRate ? parseFloat(interestRate) : undefined;
+        accountData.due_date = dueDate ? format(dueDate, "yyyy-MM-dd") : undefined;
+        accountData.auto_renew = autoRenew;
+        accountData.reinvest_interest = reinvestInterest;
+      } else if (type === "Credit Cards") {
+        accountData.bank_name = bankName || undefined;
+        accountData.cut_day = cutDay ? parseInt(cutDay) : undefined;
+        accountData.grace_period = gracePeriod ? parseInt(gracePeriod) : undefined;
+        accountData.payment_reminder = paymentReminder;
+        accountData.reminder_days_before = reminderDaysBefore ? parseInt(reminderDaysBefore) : undefined;
+        accountData.overdue_interest_rate = overdueInterestRate ? parseFloat(overdueInterestRate) : undefined;
+        accountData.overdue_penalty = overduePenalty ? parseFloat(overduePenalty) : undefined;
+      } else if (type === "Loan") {
+        accountData.bank_name = bankName || undefined;
+        accountData.principal = principal ? parseFloat(principal) : undefined;
+        accountData.apr = apr ? parseFloat(apr) : undefined;
+        accountData.loan_term = loanTerm || undefined;
+        accountData.repayment_structure = repaymentStructure || undefined;
+        accountData.collateral = collateral || undefined;
+        accountData.late_payment_interest = latePaymentInterest ? parseFloat(latePaymentInterest) : undefined;
+      }
+
+      onAddAccount(accountData);
+      resetForm();
       onOpenChange(false);
+    }
+  };
+
+  const renderTypeSpecificFields = () => {
+    switch (type) {
+      case "Savings":
+        return (
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground">Savings Details</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="bankName">Bank Name</Label>
+                <Input
+                  id="bankName"
+                  placeholder="e.g., Chase Bank"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="cutDay">Cut Day (1-31)</Label>
+                <Input
+                  id="cutDay"
+                  type="number"
+                  min="1"
+                  max="31"
+                  placeholder="15"
+                  value={cutDay}
+                  onChange={(e) => setCutDay(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "Investment":
+        return (
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground">Investment Details</h3>
+            <div className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="bankName">Bank Name</Label>
+                  <Input
+                    id="bankName"
+                    placeholder="e.g., Fidelity"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="investmentLength">Length</Label>
+                  <Select value={investmentLength} onValueChange={setInvestmentLength}>
+                    <SelectTrigger id="investmentLength">
+                      <SelectValue placeholder="Select length" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {INVESTMENT_LENGTHS.map((length) => (
+                        <SelectItem key={length} value={length}>{length}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="interestRate">Interest Rate (%)</Label>
+                  <Input
+                    id="interestRate"
+                    type="number"
+                    step="0.01"
+                    placeholder="5.5"
+                    value={interestRate}
+                    onChange={(e) => setInterestRate(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Due Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "justify-start text-left font-normal",
+                          !dueDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dueDate}
+                        onSelect={setDueDate}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="autoRenew"
+                    checked={autoRenew}
+                    onCheckedChange={setAutoRenew}
+                  />
+                  <Label htmlFor="autoRenew">Auto Renew?</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="reinvestInterest"
+                    checked={reinvestInterest}
+                    onCheckedChange={setReinvestInterest}
+                  />
+                  <Label htmlFor="reinvestInterest">Reinvest Interest?</Label>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "Credit Cards":
+        return (
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground">Credit Card Details</h3>
+            <div className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="bankName">Bank Name</Label>
+                  <Input
+                    id="bankName"
+                    placeholder="e.g., Capital One"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="cutDay">Cut Day (1-31)</Label>
+                  <Input
+                    id="cutDay"
+                    type="number"
+                    min="1"
+                    max="31"
+                    placeholder="15"
+                    value={cutDay}
+                    onChange={(e) => setCutDay(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="gracePeriod">Grace Period (days)</Label>
+                  <Input
+                    id="gracePeriod"
+                    type="number"
+                    placeholder="21"
+                    value={gracePeriod}
+                    onChange={(e) => setGracePeriod(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="reminderDays">Reminder Days Before</Label>
+                  <Input
+                    id="reminderDays"
+                    type="number"
+                    placeholder="3"
+                    value={reminderDaysBefore}
+                    onChange={(e) => setReminderDaysBefore(e.target.value)}
+                    disabled={!paymentReminder}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="paymentReminder"
+                  checked={paymentReminder}
+                  onCheckedChange={setPaymentReminder}
+                />
+                <Label htmlFor="paymentReminder">Payment Reminder?</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="overdueInterestRate">Overdue Interest Rate (%)</Label>
+                  <Input
+                    id="overdueInterestRate"
+                    type="number"
+                    step="0.01"
+                    placeholder="29.99"
+                    value={overdueInterestRate}
+                    onChange={(e) => setOverdueInterestRate(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="overduePenalty">Overdue Penalty</Label>
+                  <Input
+                    id="overduePenalty"
+                    type="number"
+                    step="0.01"
+                    placeholder="35.00"
+                    value={overduePenalty}
+                    onChange={(e) => setOverduePenalty(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "Loan":
+        return (
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground">Loan Details</h3>
+            <div className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="bankName">Bank Name</Label>
+                  <Input
+                    id="bankName"
+                    placeholder="e.g., Wells Fargo"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="principal">Principal</Label>
+                  <Input
+                    id="principal"
+                    type="number"
+                    step="0.01"
+                    placeholder="100000"
+                    value={principal}
+                    onChange={(e) => setPrincipal(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="apr">APR (%)</Label>
+                  <Input
+                    id="apr"
+                    type="number"
+                    step="0.01"
+                    placeholder="6.5"
+                    value={apr}
+                    onChange={(e) => setApr(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="loanTerm">Loan Term</Label>
+                  <Input
+                    id="loanTerm"
+                    placeholder="e.g., 30 years"
+                    value={loanTerm}
+                    onChange={(e) => setLoanTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="repaymentStructure">Repayment Structure</Label>
+                  <Select value={repaymentStructure} onValueChange={setRepaymentStructure}>
+                    <SelectTrigger id="repaymentStructure">
+                      <SelectValue placeholder="Select structure" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {REPAYMENT_STRUCTURES.map((structure) => (
+                        <SelectItem key={structure} value={structure}>{structure}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="latePaymentInterest">Late Payment Interest (%)</Label>
+                  <Input
+                    id="latePaymentInterest"
+                    type="number"
+                    step="0.01"
+                    placeholder="2.0"
+                    value={latePaymentInterest}
+                    onChange={(e) => setLatePaymentInterest(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="collateral">Collateral</Label>
+                <Input
+                  id="collateral"
+                  placeholder="e.g., Property at 123 Main St"
+                  value={collateral}
+                  onChange={(e) => setCollateral(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Account</DialogTitle>
           <DialogDescription>
@@ -103,10 +555,11 @@ export const AddAccountDialog = ({ open, onOpenChange, onAddAccount }: AddAccoun
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Checking">Checking</SelectItem>
-                        <SelectItem value="Savings">Savings</SelectItem>
-                        <SelectItem value="Credit">Credit Card</SelectItem>
-                        <SelectItem value="Investment">Investment</SelectItem>
+                        {ACCOUNT_TYPES.map((accountType) => (
+                          <SelectItem key={accountType} value={accountType}>
+                            {accountType}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -133,7 +586,7 @@ export const AddAccountDialog = ({ open, onOpenChange, onAddAccount }: AddAccoun
               <div className="grid gap-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="balance">Current Balance</Label>
+                    <Label htmlFor="balance">Initial Balance</Label>
                     <Input
                       id="balance"
                       type="number"
@@ -182,12 +635,16 @@ export const AddAccountDialog = ({ open, onOpenChange, onAddAccount }: AddAccoun
                         selected={openingDate}
                         onSelect={(date) => date && setOpeningDate(date)}
                         initialFocus
+                        className="pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
               </div>
             </div>
+
+            {/* Type-Specific Fields */}
+            {renderTypeSpecificFields()}
 
             {/* Additional Information Section */}
             <div className="space-y-4">
