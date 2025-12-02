@@ -16,7 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ICON_MAP } from "@/components/IconPicker";
+import { Folder } from "lucide-react";
+import { Category, Subcategory } from "@/hooks/useCategories";
 
 interface Account {
   id: string;
@@ -27,12 +30,16 @@ interface AddTransactionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   accounts: Account[];
+  categories: Category[];
+  subcategories: Subcategory[];
   onAddTransaction: (transaction: {
     description: string;
     amount: number;
     date: string;
     category: string;
     account_id: string;
+    category_id: string;
+    subcategory_id: string;
   }) => void;
 }
 
@@ -40,32 +47,58 @@ export const AddTransactionDialog = ({
   open,
   onOpenChange,
   accounts,
+  categories,
+  subcategories,
   onAddTransaction,
 }: AddTransactionDialogProps) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [subcategoryId, setSubcategoryId] = useState("");
   const [accountId, setAccountId] = useState("");
+
+  // Filter subcategories based on selected category
+  const filteredSubcategories = subcategories.filter(
+    (s) => s.category_id === categoryId
+  );
+
+  // Reset subcategory when category changes
+  useEffect(() => {
+    setSubcategoryId("");
+  }, [categoryId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (description && amount && date && category && accountId) {
+    if (description && amount && date && categoryId && subcategoryId && accountId) {
+      const selectedCategory = categories.find((c) => c.id === categoryId);
+      const selectedSubcategory = subcategories.find((s) => s.id === subcategoryId);
+      
       onAddTransaction({
         description,
         amount: parseFloat(amount),
         date,
-        category,
+        category: `${selectedCategory?.name || ""} > ${selectedSubcategory?.name || ""}`,
         account_id: accountId,
+        category_id: categoryId,
+        subcategory_id: subcategoryId,
       });
       setDescription("");
       setAmount("");
       setDate(new Date().toISOString().split("T")[0]);
-      setCategory("");
+      setCategoryId("");
+      setSubcategoryId("");
       setAccountId("");
       onOpenChange(false);
     }
   };
+
+  const renderIcon = (iconName: string) => {
+    const IconComponent = ICON_MAP[iconName] || Folder;
+    return <IconComponent className="h-4 w-4 mr-2" />;
+  };
+
+  const isFormValid = description && amount && date && categoryId && subcategoryId && accountId;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -112,19 +145,54 @@ export const AddTransactionDialog = ({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={setCategory} required>
+              <Select value={categoryId} onValueChange={setCategoryId} required>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Food">Food</SelectItem>
-                  <SelectItem value="Transport">Transport</SelectItem>
-                  <SelectItem value="Shopping">Shopping</SelectItem>
-                  <SelectItem value="Bills">Bills</SelectItem>
-                  <SelectItem value="Entertainment">Entertainment</SelectItem>
-                  <SelectItem value="Health">Health</SelectItem>
-                  <SelectItem value="Income">Income</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  {categories.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      No categories. Create one in Categories.
+                    </div>
+                  ) : (
+                    categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        <div className="flex items-center">
+                          {renderIcon(cat.icon)}
+                          {cat.name}
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="subcategory">Subcategory</Label>
+              <Select 
+                value={subcategoryId} 
+                onValueChange={setSubcategoryId} 
+                required
+                disabled={!categoryId}
+              >
+                <SelectTrigger id="subcategory">
+                  <SelectValue placeholder={categoryId ? "Select subcategory" : "Select a category first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredSubcategories.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      No subcategories for this category.
+                    </div>
+                  ) : (
+                    filteredSubcategories.map((sub) => (
+                      <SelectItem key={sub.id} value={sub.id}>
+                        <div className="flex items-center">
+                          {renderIcon(sub.icon)}
+                          {sub.name}
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -148,7 +216,7 @@ export const AddTransactionDialog = ({
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Add Transaction</Button>
+            <Button type="submit" disabled={!isFormValid}>Add Transaction</Button>
           </DialogFooter>
         </form>
       </DialogContent>

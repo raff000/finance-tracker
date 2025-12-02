@@ -7,6 +7,7 @@ import { Transactions } from "@/components/Transactions";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
 import { PreferencesDialog } from "@/components/PreferencesDialog";
+import { CategoriesDialog } from "@/components/CategoriesDialog";
 import { AppSidebar } from "@/components/AppSidebar";
 import { UserMenu } from "@/components/UserMenu";
 import AuthDialog from "@/components/AuthDialog";
@@ -14,15 +15,17 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAccounts } from "@/hooks/useAccounts";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useCategories } from "@/hooks/useCategories";
 import { Session } from "@supabase/supabase-js";
 
-type View = "dashboard" | "accounts" | "transactions";
+type View = "dashboard" | "accounts" | "transactions" | "categories";
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<View>("dashboard");
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
@@ -30,6 +33,16 @@ const Index = () => {
   const { data: profile, refetch: refetchProfile } = useProfile(session?.user?.id);
   const { data: accounts = [], addAccount, isAddingAccount } = useAccounts(session?.user?.id);
   const { data: transactions = [], addTransaction, isAddingTransaction } = useTransactions(session?.user?.id);
+  const {
+    categories,
+    subcategories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    addSubcategory,
+    updateSubcategory,
+    deleteSubcategory,
+  } = useCategories(session?.user?.id);
 
   useEffect(() => {
     // Set up auth state listener
@@ -48,6 +61,15 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Handle view change - open dialog for categories
+  const handleViewChange = (view: View) => {
+    if (view === "categories") {
+      setShowCategories(true);
+    } else {
+      setCurrentView(view);
+    }
+  };
 
   const handleAddAccount = (newAccount: { 
     name: string; 
@@ -85,6 +107,8 @@ const Index = () => {
     date: string;
     category: string;
     account_id: string;
+    category_id: string;
+    subcategory_id: string;
   }) => {
     addTransaction(newTransaction);
   };
@@ -107,6 +131,8 @@ const Index = () => {
           <Transactions 
             transactions={transactions}
             accounts={accounts}
+            categories={categories}
+            subcategories={subcategories}
             onAddTransaction={() => setShowAddTransaction(true)} 
           />
         );
@@ -118,7 +144,7 @@ const Index = () => {
   return (
     <SidebarProvider defaultOpen={false}>
       <div className="flex min-h-screen w-full">
-        <AppSidebar currentView={currentView} onViewChange={setCurrentView} />
+        <AppSidebar currentView={currentView} onViewChange={handleViewChange} />
 
         <div className="flex-1 flex flex-col w-full">
           {/* Mobile Header */}
@@ -151,6 +177,8 @@ const Index = () => {
           open={showAddTransaction}
           onOpenChange={setShowAddTransaction}
           accounts={accounts}
+          categories={categories}
+          subcategories={subcategories}
           onAddTransaction={handleAddTransaction}
         />
         <PreferencesDialog
@@ -158,6 +186,18 @@ const Index = () => {
           onOpenChange={setShowPreferences}
           profile={profile}
           onProfileUpdate={refetchProfile}
+        />
+        <CategoriesDialog
+          open={showCategories}
+          onOpenChange={setShowCategories}
+          categories={categories}
+          subcategories={subcategories}
+          onAddCategory={addCategory}
+          onUpdateCategory={updateCategory}
+          onDeleteCategory={deleteCategory}
+          onAddSubcategory={addSubcategory}
+          onUpdateSubcategory={updateSubcategory}
+          onDeleteSubcategory={deleteSubcategory}
         />
         <AuthDialog open={showAuth} onOpenChange={setShowAuth} />
       </div>

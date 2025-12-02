@@ -30,6 +30,8 @@ export const useTransactions = (userId: string | undefined) => {
       date: string;
       category: string;
       account_id: string;
+      category_id?: string;
+      subcategory_id?: string;
     }) => {
       if (!userId) throw new Error("User not authenticated");
 

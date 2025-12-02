@@ -8,7 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus } from "lucide-react";
+import { Plus, Folder } from "lucide-react";
+import { ICON_MAP } from "@/components/IconPicker";
+import { Category, Subcategory } from "@/hooks/useCategories";
 
 interface Account {
   id: string;
@@ -24,19 +26,80 @@ interface Transaction {
   date: string;
   category: string;
   account_id: string;
+  category_id?: string | null;
+  subcategory_id?: string | null;
 }
 
 interface TransactionsProps {
   transactions: Transaction[];
   accounts: Account[];
+  categories: Category[];
+  subcategories: Subcategory[];
   onAddTransaction: () => void;
 }
 
-export const Transactions = ({ transactions, accounts, onAddTransaction }: TransactionsProps) => {
+export const Transactions = ({ 
+  transactions, 
+  accounts, 
+  categories,
+  subcategories,
+  onAddTransaction 
+}: TransactionsProps) => {
   const getAccountName = (accountId: string) => {
     const account = accounts.find(a => a.id === accountId);
     return account?.name || "Unknown";
   };
+
+  const getCategoryInfo = (categoryId: string | null | undefined) => {
+    if (!categoryId) return null;
+    return categories.find(c => c.id === categoryId);
+  };
+
+  const getSubcategoryInfo = (subcategoryId: string | null | undefined) => {
+    if (!subcategoryId) return null;
+    return subcategories.find(s => s.id === subcategoryId);
+  };
+
+  const renderCategoryBadge = (transaction: Transaction) => {
+    const category = getCategoryInfo(transaction.category_id);
+    const subcategory = getSubcategoryInfo(transaction.subcategory_id);
+
+    if (category && subcategory) {
+      const CategoryIcon = ICON_MAP[category.icon] || Folder;
+      const SubcategoryIcon = ICON_MAP[subcategory.icon] || Folder;
+      
+      return (
+        <div className="flex flex-col gap-1">
+          <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">
+            <CategoryIcon className="h-3 w-3 mr-1" />
+            {category.name}
+          </span>
+          <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            <SubcategoryIcon className="h-3 w-3 mr-1" />
+            {subcategory.name}
+          </span>
+        </div>
+      );
+    }
+
+    // Fallback to old text-based category
+    return (
+      <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">
+        {transaction.category}
+      </span>
+    );
+  };
+
+  const renderMobileCategory = (transaction: Transaction) => {
+    const category = getCategoryInfo(transaction.category_id);
+    const subcategory = getSubcategoryInfo(transaction.subcategory_id);
+
+    if (category && subcategory) {
+      return `${category.name} > ${subcategory.name}`;
+    }
+    return transaction.category;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -75,14 +138,12 @@ export const Transactions = ({ transactions, accounts, onAddTransaction }: Trans
                         <div>
                           <div>{transaction.description}</div>
                           <div className="sm:hidden text-xs text-muted-foreground mt-1">
-                            {transaction.category} • {getAccountName(transaction.account_id)}
+                            {renderMobileCategory(transaction)} • {getAccountName(transaction.account_id)}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">
-                          {transaction.category}
-                        </span>
+                        {renderCategoryBadge(transaction)}
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-sm">{getAccountName(transaction.account_id)}</TableCell>
                       <TableCell className={`text-right font-semibold text-sm ${transaction.amount >= 0 ? "text-success" : "text-destructive"}`}>

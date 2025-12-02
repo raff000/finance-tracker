@@ -1,4 +1,4 @@
-import { LayoutDashboard, Wallet, Receipt } from "lucide-react";
+import { LayoutDashboard, Wallet, Receipt, Tags } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,7 +11,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-type View = "dashboard" | "accounts" | "transactions";
+type View = "dashboard" | "accounts" | "transactions" | "categories";
 
 interface AppSidebarProps {
   currentView: View;
@@ -26,6 +26,7 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
     { title: "Dashboard", view: "dashboard" as View, icon: LayoutDashboard },
     { title: "Accounts", view: "accounts" as View, icon: Wallet },
     { title: "Transactions", view: "transactions" as View, icon: Receipt },
+    { title: "Categories", view: "categories" as View, icon: Tags },
   ];
 
   return (
