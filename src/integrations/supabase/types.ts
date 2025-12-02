@@ -110,6 +110,30 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -134,35 +158,76 @@ export type Database = {
         }
         Relationships: []
       }
+      subcategories: {
+        Row: {
+          category_id: string
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           account_id: string
           amount: number
           category: string
+          category_id: string | null
           created_at: string
           date: string
           description: string
           id: string
+          subcategory_id: string | null
           user_id: string
         }
         Insert: {
           account_id: string
           amount: number
           category: string
+          category_id?: string | null
           created_at?: string
           date: string
           description: string
           id?: string
+          subcategory_id?: string | null
           user_id: string
         }
         Update: {
           account_id?: string
           amount?: number
           category?: string
+          category_id?: string | null
           created_at?: string
           date?: string
           description?: string
           id?: string
+          subcategory_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -171,6 +236,20 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
             referencedColumns: ["id"]
           },
         ]
