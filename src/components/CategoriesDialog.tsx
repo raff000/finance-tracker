@@ -8,19 +8,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconPicker, ICON_MAP } from "@/components/IconPicker";
-import { Plus, Pencil, Trash2, Folder } from "lucide-react";
-import { Category, Subcategory } from "@/hooks/useCategories";
+import { Plus, Pencil, Trash2, Folder, TrendingUp, TrendingDown } from "lucide-react";
+import { Category, Subcategory, CategoryType } from "@/hooks/useCategories";
 
 interface CategoriesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   categories: Category[];
   subcategories: Subcategory[];
-  onAddCategory: (category: { name: string; icon: string }) => void;
-  onUpdateCategory: (data: { id: string; name: string; icon: string }) => void;
+  onAddCategory: (category: { name: string; type: CategoryType; icon: string }) => void;
+  onUpdateCategory: (data: { id: string; name: string; type: CategoryType; icon: string }) => void;
   onDeleteCategory: (id: string) => void;
   onAddSubcategory: (subcategory: { name: string; icon: string; category_id: string }) => void;
   onUpdateSubcategory: (data: { id: string; name: string; icon: string }) => void;
@@ -39,6 +39,7 @@ export const CategoriesDialog = ({
   onUpdateSubcategory,
   onDeleteSubcategory,
 }: CategoriesDialogProps) => {
+  const [selectedType, setSelectedType] = useState<CategoryType>("Expense");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryIcon, setNewCategoryIcon] = useState("folder");
@@ -47,14 +48,20 @@ export const CategoriesDialog = ({
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingSubcategory, setEditingSubcategory] = useState<Subcategory | null>(null);
 
+  const filteredCategories = categories.filter((c) => c.type === selectedType);
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
   const filteredSubcategories = subcategories.filter(
     (s) => s.category_id === selectedCategoryId
   );
 
+  const handleTypeChange = (type: CategoryType) => {
+    setSelectedType(type);
+    setSelectedCategoryId(null);
+  };
+
   const handleAddCategory = () => {
     if (newCategoryName.trim()) {
-      onAddCategory({ name: newCategoryName.trim(), icon: newCategoryIcon });
+      onAddCategory({ name: newCategoryName.trim(), type: selectedType, icon: newCategoryIcon });
       setNewCategoryName("");
       setNewCategoryIcon("folder");
     }
@@ -65,6 +72,7 @@ export const CategoriesDialog = ({
       onUpdateCategory({
         id: editingCategory.id,
         name: editingCategory.name.trim(),
+        type: editingCategory.type,
         icon: editingCategory.icon,
       });
       setEditingCategory(null);
@@ -114,11 +122,25 @@ export const CategoriesDialog = ({
           <div className="flex flex-col min-h-0">
             <h3 className="font-semibold mb-3">Categories</h3>
             
+            {/* Type Tabs */}
+            <Tabs value={selectedType} onValueChange={(v) => handleTypeChange(v as CategoryType)} className="mb-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="Expense" className="flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4" />
+                  Expense
+                </TabsTrigger>
+                <TabsTrigger value="Income" className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  Income
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
             {/* Add Category Form */}
             <div className="flex gap-2 mb-4">
               <IconPicker value={newCategoryIcon} onChange={setNewCategoryIcon} />
               <Input
-                placeholder="New category name"
+                placeholder={`New ${selectedType.toLowerCase()} category`}
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
@@ -131,12 +153,12 @@ export const CategoriesDialog = ({
             {/* Categories List */}
             <ScrollArea className="flex-1 border rounded-md">
               <div className="p-2 space-y-1">
-                {categories.length === 0 ? (
+                {filteredCategories.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No categories yet. Create one above.
+                    No {selectedType.toLowerCase()} categories yet. Create one above.
                   </p>
                 ) : (
-                  categories.map((category) => (
+                  filteredCategories.map((category) => (
                     <div
                       key={category.id}
                       className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
@@ -234,7 +256,7 @@ export const CategoriesDialog = ({
             {selectedCategoryId ? (
               <>
                 {/* Add Subcategory Form */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex gap-2 mb-4 mt-[52px]">
                   <IconPicker value={newSubcategoryIcon} onChange={setNewSubcategoryIcon} />
                   <Input
                     placeholder="New subcategory name"
@@ -322,7 +344,7 @@ export const CategoriesDialog = ({
                 </ScrollArea>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center border rounded-md">
+              <div className="flex-1 flex items-center justify-center border rounded-md mt-[52px]">
                 <p className="text-sm text-muted-foreground">
                   Select a category to manage its subcategories
                 </p>

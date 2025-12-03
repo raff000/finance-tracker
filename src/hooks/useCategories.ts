@@ -2,10 +2,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+export type CategoryType = 'Income' | 'Expense';
+
 export interface Category {
   id: string;
   user_id: string;
   name: string;
+  type: CategoryType;
   icon: string;
   created_at: string;
 }
@@ -58,7 +61,7 @@ export const useCategories = (userId: string | undefined) => {
   });
 
   const addCategoryMutation = useMutation({
-    mutationFn: async (newCategory: { name: string; icon: string }) => {
+    mutationFn: async (newCategory: { name: string; type: CategoryType; icon: string }) => {
       if (!userId) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
@@ -87,10 +90,10 @@ export const useCategories = (userId: string | undefined) => {
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: async ({ id, name, icon }: { id: string; name: string; icon: string }) => {
+    mutationFn: async ({ id, name, type, icon }: { id: string; name: string; type: CategoryType; icon: string }) => {
       const { data, error } = await supabase
         .from("categories")
-        .update({ name, icon })
+        .update({ name, type, icon })
         .eq("id", id)
         .select()
         .single();
