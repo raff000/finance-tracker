@@ -1,22 +1,14 @@
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconPicker, ICON_MAP } from "@/components/IconPicker";
-import { Plus, Pencil, Trash2, Folder, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Folder, TrendingUp, TrendingDown, Tags } from "lucide-react";
 import { Category, Subcategory, CategoryType } from "@/hooks/useCategories";
 
-interface CategoriesDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface CategoriesProps {
   categories: Category[];
   subcategories: Subcategory[];
   onAddCategory: (category: { name: string; type: CategoryType; icon: string }) => void;
@@ -27,9 +19,7 @@ interface CategoriesDialogProps {
   onDeleteSubcategory: (id: string) => void;
 }
 
-export const CategoriesDialog = ({
-  open,
-  onOpenChange,
+export const Categories = ({
   categories,
   subcategories,
   onAddCategory,
@@ -38,7 +28,7 @@ export const CategoriesDialog = ({
   onAddSubcategory,
   onUpdateSubcategory,
   onDeleteSubcategory,
-}: CategoriesDialogProps) => {
+}: CategoriesProps) => {
   const [selectedType, setSelectedType] = useState<CategoryType>("Expense");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -108,22 +98,22 @@ export const CategoriesDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-full h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Manage Categories</DialogTitle>
-          <DialogDescription>
-            Create and organize categories and subcategories for your transactions.
-          </DialogDescription>
-        </DialogHeader>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Categories</h1>
+          <p className="text-sm text-muted-foreground">
+            Create and organize categories and subcategories for your transactions
+          </p>
+        </div>
+      </div>
 
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
-          {/* Categories Column */}
-          <div className="flex flex-col min-h-0">
-            <h3 className="font-semibold mb-3">Categories</h3>
-            
-            {/* Type Tabs */}
-            <Tabs value={selectedType} onValueChange={(v) => handleTypeChange(v as CategoryType)} className="mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Categories Column */}
+        <Card className="flex flex-col">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Categories</CardTitle>
+            <Tabs value={selectedType} onValueChange={(v) => handleTypeChange(v as CategoryType)} className="mt-2">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="Expense" className="flex items-center gap-2">
                   <TrendingDown className="h-4 w-4" />
@@ -135,7 +125,8 @@ export const CategoriesDialog = ({
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col min-h-0">
             {/* Add Category Form */}
             <div className="flex gap-2 mb-4">
               <IconPicker value={newCategoryIcon} onChange={setNewCategoryIcon} />
@@ -151,12 +142,15 @@ export const CategoriesDialog = ({
             </div>
 
             {/* Categories List */}
-            <ScrollArea className="flex-1 border rounded-md">
+            <ScrollArea className="flex-1 border rounded-md min-h-[300px]">
               <div className="p-2 space-y-1">
                 {filteredCategories.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No {selectedType.toLowerCase()} categories yet. Create one above.
-                  </p>
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Tags className="h-10 w-10 text-muted-foreground mb-3" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      No {selectedType.toLowerCase()} categories yet. Create one above.
+                    </p>
+                  </div>
                 ) : (
                   filteredCategories.map((category) => (
                     <div
@@ -240,23 +234,26 @@ export const CategoriesDialog = ({
                 )}
               </div>
             </ScrollArea>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Subcategories Column */}
-          <div className="flex flex-col min-h-0">
-            <h3 className="font-semibold mb-3">
+        {/* Subcategories Column */}
+        <Card className="flex flex-col">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">
               Subcategories
               {selectedCategory && (
                 <span className="font-normal text-muted-foreground ml-2">
                   for {selectedCategory.name}
                 </span>
               )}
-            </h3>
-
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col min-h-0">
             {selectedCategoryId ? (
               <>
                 {/* Add Subcategory Form */}
-                <div className="flex gap-2 mb-4 mt-[52px]">
+                <div className="flex gap-2 mb-4">
                   <IconPicker value={newSubcategoryIcon} onChange={setNewSubcategoryIcon} />
                   <Input
                     placeholder="New subcategory name"
@@ -270,12 +267,15 @@ export const CategoriesDialog = ({
                 </div>
 
                 {/* Subcategories List */}
-                <ScrollArea className="flex-1 border rounded-md">
+                <ScrollArea className="flex-1 border rounded-md min-h-[300px]">
                   <div className="p-2 space-y-1">
                     {filteredSubcategories.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No subcategories yet. Create one above.
-                      </p>
+                      <div className="flex flex-col items-center justify-center py-8">
+                        <Tags className="h-10 w-10 text-muted-foreground mb-3" />
+                        <p className="text-sm text-muted-foreground text-center">
+                          No subcategories yet. Create one above.
+                        </p>
+                      </div>
                     ) : (
                       filteredSubcategories.map((subcategory) => (
                         <div
@@ -344,15 +344,16 @@ export const CategoriesDialog = ({
                 </ScrollArea>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center border rounded-md mt-[52px]">
+              <div className="flex-1 flex flex-col items-center justify-center border rounded-md min-h-[300px]">
+                <Tags className="h-10 w-10 text-muted-foreground mb-3" />
                 <p className="text-sm text-muted-foreground">
                   Select a category to manage its subcategories
                 </p>
               </div>
             )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };

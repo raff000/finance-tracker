@@ -4,10 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dashboard } from "@/components/Dashboard";
 import { Accounts } from "@/components/Accounts";
 import { Transactions } from "@/components/Transactions";
+import { Categories } from "@/components/Categories";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
 import { PreferencesDialog } from "@/components/PreferencesDialog";
-import { CategoriesDialog } from "@/components/CategoriesDialog";
 import { AppSidebar } from "@/components/AppSidebar";
 import { UserMenu } from "@/components/UserMenu";
 import AuthDialog from "@/components/AuthDialog";
@@ -25,7 +25,6 @@ const Index = () => {
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
-  const [showCategories, setShowCategories] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
@@ -62,13 +61,8 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Handle view change - open dialog for categories
   const handleViewChange = (view: View) => {
-    if (view === "categories") {
-      setShowCategories(true);
-    } else {
-      setCurrentView(view);
-    }
+    setCurrentView(view);
   };
 
   const handleAddAccount = (newAccount: { 
@@ -136,6 +130,19 @@ const Index = () => {
             onAddTransaction={() => setShowAddTransaction(true)} 
           />
         );
+      case "categories":
+        return (
+          <Categories
+            categories={categories}
+            subcategories={subcategories}
+            onAddCategory={addCategory}
+            onUpdateCategory={updateCategory}
+            onDeleteCategory={deleteCategory}
+            onAddSubcategory={addSubcategory}
+            onUpdateSubcategory={updateSubcategory}
+            onDeleteSubcategory={deleteSubcategory}
+          />
+        );
       default:
         return <Dashboard accounts={accounts} transactions={transactions} />;
     }
@@ -186,18 +193,6 @@ const Index = () => {
           onOpenChange={setShowPreferences}
           profile={profile}
           onProfileUpdate={refetchProfile}
-        />
-        <CategoriesDialog
-          open={showCategories}
-          onOpenChange={setShowCategories}
-          categories={categories}
-          subcategories={subcategories}
-          onAddCategory={addCategory}
-          onUpdateCategory={updateCategory}
-          onDeleteCategory={deleteCategory}
-          onAddSubcategory={addSubcategory}
-          onUpdateSubcategory={updateSubcategory}
-          onDeleteSubcategory={deleteSubcategory}
         />
         <AuthDialog open={showAuth} onOpenChange={setShowAuth} />
       </div>
