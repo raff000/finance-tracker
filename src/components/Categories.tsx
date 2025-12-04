@@ -156,7 +156,7 @@ export const Categories = ({
 
             {/* Categories List */}
             <ScrollArea className="flex-1 border rounded-md min-h-[300px]">
-              <div className="p-2 space-y-1">
+              <div className="p-2 space-y-1 pr-[6px] pl-[7px] pt-[6px] pb-[6px]">
                 {filteredCategories.length === 0 ? <div className="flex flex-col items-center justify-center py-8">
                     <Tags className="h-10 w-10 text-muted-foreground mb-3" />
                     <p className="text-sm text-muted-foreground text-center">
