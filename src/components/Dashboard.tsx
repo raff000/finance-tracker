@@ -36,7 +36,7 @@ export const Dashboard = ({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="font-medium text-base">Total Balance</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <Wallet className="text-muted-foreground w-[18px] h-[18px]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -50,8 +50,8 @@ export const Dashboard = ({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Income</CardTitle>
-            <ArrowUpRight className="h-4 w-4 text-success" />
+            <CardTitle className="font-medium text-base">Income</CardTitle>
+            <ArrowUpRight className="text-success w-[18px] h-[18px]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">
@@ -65,8 +65,8 @@ export const Dashboard = ({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expenses</CardTitle>
-            <ArrowDownRight className="h-4 w-4 text-destructive" />
+            <CardTitle className="font-medium text-base">Expenses</CardTitle>
+            <ArrowDownRight className="text-destructive w-[18px] h-[18px]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
@@ -80,8 +80,8 @@ export const Dashboard = ({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Savings</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="font-medium text-base">Net Savings</CardTitle>
+            <TrendingUp className="text-muted-foreground w-[18px] h-[18px]" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${income - expenses >= 0 ? "text-success" : "text-destructive"}`}>
