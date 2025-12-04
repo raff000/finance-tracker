@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Folder } from "lucide-react";
+import { Plus, Folder, ArrowLeftRight } from "lucide-react";
 import { ICON_MAP } from "@/components/IconPicker";
 import { Category, Subcategory } from "@/hooks/useCategories";
 
@@ -28,6 +28,7 @@ interface Transaction {
   account_id: string;
   category_id?: string | null;
   subcategory_id?: string | null;
+  transaction_type?: string | null;
 }
 
 interface TransactionsProps {
@@ -61,6 +62,16 @@ export const Transactions = ({
   };
 
   const renderCategoryBadge = (transaction: Transaction) => {
+    // Handle transfer transactions
+    if (transaction.transaction_type === "transfer") {
+      return (
+        <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-600">
+          <ArrowLeftRight className="h-4 w-4 mr-1" />
+          Transfer
+        </span>
+      );
+    }
+
     const category = getCategoryInfo(transaction.category_id);
     const subcategory = getSubcategoryInfo(transaction.subcategory_id);
 
@@ -70,12 +81,24 @@ export const Transactions = ({
       
       return (
         <div className="flex flex-col gap-1">
-          <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">
-            <CategoryIcon className="h-3 w-3 mr-1" />
+          <span 
+            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+            style={{ 
+              backgroundColor: `${category.color}20`,
+              color: category.color 
+            }}
+          >
+            <CategoryIcon className="h-4 w-4 mr-1" />
             {category.name}
           </span>
-          <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            <SubcategoryIcon className="h-3 w-3 mr-1" />
+          <span 
+            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+            style={{ 
+              backgroundColor: `${category.color}10`,
+              color: category.color 
+            }}
+          >
+            <SubcategoryIcon className="h-4 w-4 mr-1" />
             {subcategory.name}
           </span>
         </div>
@@ -91,6 +114,10 @@ export const Transactions = ({
   };
 
   const renderMobileCategory = (transaction: Transaction) => {
+    if (transaction.transaction_type === "transfer") {
+      return "Transfer";
+    }
+
     const category = getCategoryInfo(transaction.category_id);
     const subcategory = getSubcategoryInfo(transaction.subcategory_id);
 
