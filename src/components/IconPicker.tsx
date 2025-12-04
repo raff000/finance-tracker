@@ -619,11 +619,11 @@ export const IconPicker = ({
             {filteredIcons.map(({
             name,
             Icon
-          }) => <Button key={name} variant={value === name ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => {
+          }) => <Button key={name} variant={value === name ? "secondary" : "ghost"} size="icon" onClick={() => {
             onChange(name);
             setOpen(false);
             setSearch("");
-          }} type="button">
+          }} type="button" className="h-8 w-8 shrink-0">
                 <Icon className="w-[22px] h-[22px]" />
               </Button>)}
           </div>
