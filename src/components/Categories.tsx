@@ -5,14 +5,15 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconPicker, ICON_MAP } from "@/components/IconPicker";
+import { ColorPicker } from "@/components/ColorPicker";
 import { Plus, Pencil, Trash2, Folder, TrendingUp, TrendingDown, Tags } from "lucide-react";
 import { Category, Subcategory, CategoryType } from "@/hooks/useCategories";
 
 interface CategoriesProps {
   categories: Category[];
   subcategories: Subcategory[];
-  onAddCategory: (category: { name: string; type: CategoryType; icon: string }) => void;
-  onUpdateCategory: (data: { id: string; name: string; type: CategoryType; icon: string }) => void;
+  onAddCategory: (category: { name: string; type: CategoryType; icon: string; color: string }) => void;
+  onUpdateCategory: (data: { id: string; name: string; type: CategoryType; icon: string; color: string }) => void;
   onDeleteCategory: (id: string) => void;
   onAddSubcategory: (subcategory: { name: string; icon: string; category_id: string }) => void;
   onUpdateSubcategory: (data: { id: string; name: string; icon: string }) => void;
@@ -33,6 +34,7 @@ export const Categories = ({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryIcon, setNewCategoryIcon] = useState("folder");
+  const [newCategoryColor, setNewCategoryColor] = useState("#6366f1");
   const [newSubcategoryName, setNewSubcategoryName] = useState("");
   const [newSubcategoryIcon, setNewSubcategoryIcon] = useState("tag");
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -51,9 +53,15 @@ export const Categories = ({
 
   const handleAddCategory = () => {
     if (newCategoryName.trim()) {
-      onAddCategory({ name: newCategoryName.trim(), type: selectedType, icon: newCategoryIcon });
+      onAddCategory({ 
+        name: newCategoryName.trim(), 
+        type: selectedType, 
+        icon: newCategoryIcon,
+        color: newCategoryColor 
+      });
       setNewCategoryName("");
       setNewCategoryIcon("folder");
+      setNewCategoryColor("#6366f1");
     }
   };
 
@@ -64,6 +72,7 @@ export const Categories = ({
         name: editingCategory.name.trim(),
         type: editingCategory.type,
         icon: editingCategory.icon,
+        color: editingCategory.color,
       });
       setEditingCategory(null);
     }
@@ -92,9 +101,9 @@ export const Categories = ({
     }
   };
 
-  const renderIcon = (iconName: string) => {
+  const renderIcon = (iconName: string, color?: string) => {
     const IconComponent = ICON_MAP[iconName] || Folder;
-    return <IconComponent className="h-4 w-4" />;
+    return <IconComponent className="h-5 w-5" style={color ? { color } : undefined} />;
   };
 
   return (
@@ -130,6 +139,7 @@ export const Categories = ({
             {/* Add Category Form */}
             <div className="flex gap-2 mb-4">
               <IconPicker value={newCategoryIcon} onChange={setNewCategoryIcon} />
+              <ColorPicker value={newCategoryColor} onChange={setNewCategoryColor} />
               <Input
                 placeholder={`New ${selectedType.toLowerCase()} category`}
                 value={newCategoryName}
@@ -170,6 +180,12 @@ export const Categories = ({
                               setEditingCategory({ ...editingCategory, icon })
                             }
                           />
+                          <ColorPicker
+                            value={editingCategory.color}
+                            onChange={(color) =>
+                              setEditingCategory({ ...editingCategory, color })
+                            }
+                          />
                           <Input
                             value={editingCategory.name}
                             onChange={(e) =>
@@ -198,10 +214,12 @@ export const Categories = ({
                         </>
                       ) : (
                         <>
-                          <span className="text-muted-foreground">
-                            {renderIcon(category.icon)}
+                          <span style={{ color: category.color }}>
+                            {renderIcon(category.icon, category.color)}
                           </span>
-                          <span className="flex-1 truncate">{category.name}</span>
+                          <span className="flex-1 truncate" style={{ color: category.color }}>
+                            {category.name}
+                          </span>
                           <Button
                             size="icon"
                             variant="ghost"
@@ -243,7 +261,7 @@ export const Categories = ({
             <CardTitle className="text-lg">
               Subcategories
               {selectedCategory && (
-                <span className="font-normal text-muted-foreground ml-2">
+                <span className="font-normal ml-2" style={{ color: selectedCategory.color }}>
                   for {selectedCategory.name}
                 </span>
               )}
@@ -315,10 +333,12 @@ export const Categories = ({
                             </>
                           ) : (
                             <>
-                              <span className="text-muted-foreground">
-                                {renderIcon(subcategory.icon)}
+                              <span style={{ color: selectedCategory?.color }}>
+                                {renderIcon(subcategory.icon, selectedCategory?.color)}
                               </span>
-                              <span className="flex-1 truncate">{subcategory.name}</span>
+                              <span className="flex-1 truncate" style={{ color: selectedCategory?.color }}>
+                                {subcategory.name}
+                              </span>
                               <Button
                                 size="icon"
                                 variant="ghost"

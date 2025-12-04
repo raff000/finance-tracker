@@ -112,6 +112,7 @@ export type Database = {
       }
       categories: {
         Row: {
+          color: string
           created_at: string
           icon: string
           id: string
@@ -120,6 +121,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          color?: string
           created_at?: string
           icon?: string
           id?: string
@@ -128,6 +130,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          color?: string
           created_at?: string
           icon?: string
           id?: string
@@ -207,6 +210,8 @@ export type Database = {
           description: string
           id: string
           subcategory_id: string | null
+          transaction_type: string
+          transfer_id: string | null
           user_id: string
         }
         Insert: {
@@ -219,6 +224,8 @@ export type Database = {
           description: string
           id?: string
           subcategory_id?: string | null
+          transaction_type?: string
+          transfer_id?: string | null
           user_id: string
         }
         Update: {
@@ -231,6 +238,8 @@ export type Database = {
           description?: string
           id?: string
           subcategory_id?: string | null
+          transaction_type?: string
+          transfer_id?: string | null
           user_id?: string
         }
         Relationships: [

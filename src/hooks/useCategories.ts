@@ -10,6 +10,7 @@ export interface Category {
   name: string;
   type: CategoryType;
   icon: string;
+  color: string;
   created_at: string;
 }
 
@@ -61,7 +62,7 @@ export const useCategories = (userId: string | undefined) => {
   });
 
   const addCategoryMutation = useMutation({
-    mutationFn: async (newCategory: { name: string; type: CategoryType; icon: string }) => {
+    mutationFn: async (newCategory: { name: string; type: CategoryType; icon: string; color: string }) => {
       if (!userId) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
@@ -90,10 +91,10 @@ export const useCategories = (userId: string | undefined) => {
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: async ({ id, name, type, icon }: { id: string; name: string; type: CategoryType; icon: string }) => {
+    mutationFn: async ({ id, name, type, icon, color }: { id: string; name: string; type: CategoryType; icon: string; color: string }) => {
       const { data, error } = await supabase
         .from("categories")
-        .update({ name, type, icon })
+        .update({ name, type, icon, color })
         .eq("id", id)
         .select()
         .single();
