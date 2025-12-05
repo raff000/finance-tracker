@@ -84,9 +84,73 @@ export const useAccounts = (userId: string | undefined) => {
     },
   });
 
+  const updateAccountMutation = useMutation({
+    mutationFn: async (updatedAccount: NewAccount & { id: string }) => {
+      if (!userId) throw new Error("User not authenticated");
+      const { id, ...accountData } = updatedAccount;
+
+      const { data, error } = await supabase
+        .from("accounts")
+        .update(accountData)
+        .eq("id", id)
+        .eq("user_id", userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts", userId] });
+      toast({
+        title: "Success",
+        description: "Account updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error updating account",
+        description: error.message,
+      });
+    },
+  });
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: async (accountId: string) => {
+      if (!userId) throw new Error("User not authenticated");
+
+      const { error } = await supabase
+        .from("accounts")
+        .delete()
+        .eq("id", accountId)
+        .eq("user_id", userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts", userId] });
+      toast({
+        title: "Success",
+        description: "Account deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error deleting account",
+        description: error.message,
+      });
+    },
+  });
+
   return {
     ...query,
     addAccount: addAccountMutation.mutate,
     isAddingAccount: addAccountMutation.isPending,
+    updateAccount: updateAccountMutation.mutate,
+    isUpdatingAccount: updateAccountMutation.isPending,
+    deleteAccount: deleteAccountMutation.mutate,
+    isDeletingAccount: deleteAccountMutation.isPending,
   };
 };

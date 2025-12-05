@@ -6,7 +6,9 @@ import { Accounts } from "@/components/Accounts";
 import { Transactions } from "@/components/Transactions";
 import { Categories } from "@/components/Categories";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
+import { EditAccountDialog } from "@/components/EditAccountDialog";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
+import { EditTransactionDialog } from "@/components/EditTransactionDialog";
 import { PreferencesDialog } from "@/components/PreferencesDialog";
 import { AppSidebar } from "@/components/AppSidebar";
 import { UserMenu } from "@/components/UserMenu";
@@ -27,11 +29,13 @@ const Index = () => {
   const [showPreferences, setShowPreferences] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  const [editingAccount, setEditingAccount] = useState<any>(null);
+  const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const navigate = useNavigate();
 
   const { data: profile, refetch: refetchProfile } = useProfile(session?.user?.id);
-  const { data: accounts = [], addAccount, isAddingAccount } = useAccounts(session?.user?.id);
-  const { data: transactions = [], addTransaction, isAddingTransaction } = useTransactions(session?.user?.id);
+  const { data: accounts = [], addAccount, isAddingAccount, updateAccount, deleteAccount } = useAccounts(session?.user?.id);
+  const { data: transactions = [], addTransaction, isAddingTransaction, updateTransaction, deleteTransaction } = useTransactions(session?.user?.id);
   const {
     categories,
     subcategories,
@@ -119,7 +123,8 @@ const Index = () => {
         return (
           <Accounts 
             accounts={accounts} 
-            onAddAccount={() => setShowAddAccount(true)} 
+            onAddAccount={() => setShowAddAccount(true)}
+            onAccountClick={(account) => setEditingAccount(account)}
           />
         );
       case "transactions":
@@ -129,7 +134,8 @@ const Index = () => {
             accounts={accounts}
             categories={categories}
             subcategories={subcategories}
-            onAddTransaction={() => setShowAddTransaction(true)} 
+            onAddTransaction={() => setShowAddTransaction(true)}
+            onTransactionClick={(transaction) => setEditingTransaction(transaction)}
           />
         );
       case "categories":
@@ -182,6 +188,13 @@ const Index = () => {
           onOpenChange={setShowAddAccount}
           onAddAccount={handleAddAccount}
         />
+        <EditAccountDialog
+          open={!!editingAccount}
+          onOpenChange={(open) => !open && setEditingAccount(null)}
+          account={editingAccount}
+          onUpdateAccount={updateAccount}
+          onDeleteAccount={deleteAccount}
+        />
         <AddTransactionDialog
           open={showAddTransaction}
           onOpenChange={setShowAddTransaction}
@@ -189,6 +202,16 @@ const Index = () => {
           categories={categories}
           subcategories={subcategories}
           onAddTransaction={handleAddTransaction}
+        />
+        <EditTransactionDialog
+          open={!!editingTransaction}
+          onOpenChange={(open) => !open && setEditingTransaction(null)}
+          transaction={editingTransaction}
+          accounts={accounts}
+          categories={categories}
+          subcategories={subcategories}
+          onUpdateTransaction={updateTransaction}
+          onDeleteTransaction={deleteTransaction}
         />
         <PreferencesDialog
           open={showPreferences}
