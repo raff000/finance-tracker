@@ -12,6 +12,7 @@ interface Account {
 interface AccountsProps {
   accounts: Account[];
   onAddAccount: () => void;
+  onAccountClick?: (account: Account) => void;
 }
 
 const getAccountIcon = (type: string) => {
@@ -33,7 +34,7 @@ const getAccountIcon = (type: string) => {
   }
 };
 
-export const Accounts = ({ accounts, onAddAccount }: AccountsProps) => {
+export const Accounts = ({ accounts, onAddAccount, onAccountClick }: AccountsProps) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -49,7 +50,11 @@ export const Accounts = ({ accounts, onAddAccount }: AccountsProps) => {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {accounts.map((account) => (
-          <Card key={account.id} className="hover:shadow-lg transition-shadow">
+          <Card 
+            key={account.id} 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => onAccountClick?.(account)}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{account.type}</CardTitle>
               {getAccountIcon(account.type)}

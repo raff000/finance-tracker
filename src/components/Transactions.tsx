@@ -37,6 +37,7 @@ interface TransactionsProps {
   categories: Category[];
   subcategories: Subcategory[];
   onAddTransaction: () => void;
+  onTransactionClick?: (transaction: Transaction) => void;
 }
 
 export const Transactions = ({ 
@@ -44,7 +45,8 @@ export const Transactions = ({
   accounts, 
   categories,
   subcategories,
-  onAddTransaction 
+  onAddTransaction,
+  onTransactionClick
 }: TransactionsProps) => {
   const getAccountName = (accountId: string) => {
     const account = accounts.find(a => a.id === accountId);
@@ -158,8 +160,12 @@ export const Transactions = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
+                {transactions.map((transaction) => (
+                    <TableRow 
+                      key={transaction.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => onTransactionClick?.(transaction)}
+                    >
                       <TableCell className="font-medium text-sm">{transaction.date}</TableCell>
                       <TableCell className="text-sm">
                         <div>
