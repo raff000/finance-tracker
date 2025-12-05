@@ -111,7 +111,7 @@ export const Categories = ({
   };
   const renderIcon = (iconName: string, color?: string) => {
     const IconComponent = ICON_MAP[iconName] || Folder;
-    return <IconComponent className="h-5 w-5" style={color ? {
+    return <IconComponent className="h-[22px] w-[22px]" style={color ? {
       color
     } : undefined} />;
   };
