@@ -45,7 +45,7 @@ export function AppSidebar({
             <SidebarMenu>
               {items.map(item => <SidebarMenuItem key={item.view}>
                   <SidebarMenuButton isActive={currentView === item.view} onClick={() => onViewChange(item.view)} tooltip={item.title}>
-                    <item.icon className="w-[22px] h-[22px]" />
+                    <item.icon className="w-6 h-6" />
                     <span className="text-base">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>)}
