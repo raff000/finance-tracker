@@ -37,7 +37,7 @@ export function AppSidebar({
               <h1 className="text-2xl font-bold text-sidebar-primary-foreground">MyWallet App</h1>
               <p className="text-sm text-sidebar-foreground/60 mt-1">Personal Finance Manager</p>
             </>}
-          {collapsed && <div className="text-2xl font-bold text-sidebar-primary-foreground text-center">F</div>}
+          {collapsed && <div className="text-2xl font-bold text-sidebar-primary-foreground text-center">M</div>}
         </div>
 
         <SidebarGroup>
