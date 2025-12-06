@@ -609,7 +609,7 @@ export const IconPicker = ({
   return <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="icon" className="h-10 w-10 shrink-0" type="button">
-          <SelectedIcon className="h-5 w-5" />
+          <SelectedIcon className="h-[22px] w-[22px]" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-72 p-2" align="start">
@@ -624,7 +624,7 @@ export const IconPicker = ({
             setOpen(false);
             setSearch("");
           }} type="button" className="h-8 w-8 shrink-0">
-                <Icon className="w-[22px] h-[22px]" />
+                <Icon className="w-6 h-6" />
               </Button>)}
           </div>
         </ScrollArea>
