@@ -48,6 +48,7 @@ export const useTransactions = (userId: string | undefined) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions", userId] });
+      queryClient.invalidateQueries({ queryKey: ["accounts", userId] });
       toast({
         title: "Success",
         description: "Transaction added successfully",
@@ -90,6 +91,7 @@ export const useTransactions = (userId: string | undefined) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions", userId] });
+      queryClient.invalidateQueries({ queryKey: ["accounts", userId] });
       toast({
         title: "Success",
         description: "Transaction updated successfully",
@@ -118,6 +120,7 @@ export const useTransactions = (userId: string | undefined) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions", userId] });
+      queryClient.invalidateQueries({ queryKey: ["accounts", userId] });
       toast({
         title: "Success",
         description: "Transaction deleted successfully",
