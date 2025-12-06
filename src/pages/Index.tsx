@@ -156,6 +156,7 @@ const Index = () => {
           <Dashboard
             accounts={accounts}
             transactions={transactions}
+            categories={categories}
             onAddTransaction={() => setShowAddTransaction(true)}
             onAddAccount={() => setShowAddAccount(true)}
             onAddReminder={() => {}}

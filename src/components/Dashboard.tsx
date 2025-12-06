@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Scale, Plus, Bell } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell } from "recharts";
 import { format, subMonths, startOfMonth, endOfMonth, parseISO, isWithinInterval } from "date-fns";
 
 interface Account {
@@ -19,12 +19,21 @@ interface Transaction {
   amount: number;
   date: string;
   category: string;
+  category_id?: string | null;
   account_id: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+  type: string;
 }
 
 interface DashboardProps {
   accounts: Account[];
   transactions: Transaction[];
+  categories?: Category[];
   onAddTransaction?: () => void;
   onAddAccount?: () => void;
   onAddReminder?: () => void;
@@ -33,9 +42,18 @@ interface DashboardProps {
 const ASSET_TYPES = ["Cash", "Savings", "Investment"];
 const LIABILITY_TYPES = ["Credit Card", "Loan", "Liabilities"];
 
+const CATEGORY_COLORS = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+];
+
 export const Dashboard = ({
   accounts,
   transactions,
+  categories = [],
   onAddTransaction,
   onAddAccount,
   onAddReminder,
@@ -110,6 +128,31 @@ export const Dashboard = ({
 
     return data;
   }, [transactions, monthsToShow]);
+
+  // Calculate expense breakdown by category
+  const expenseByCategory = useMemo(() => {
+    const expenseTransactions = transactions.filter((t) => t.amount < 0);
+    const categoryMap = new Map<string, { name: string; value: number; color: string }>();
+
+    expenseTransactions.forEach((t) => {
+      const category = categories.find((c) => c.id === t.category_id);
+      const categoryName = category?.name || t.category || "Uncategorized";
+      const categoryColor = category?.color || CATEGORY_COLORS[categoryMap.size % CATEGORY_COLORS.length];
+
+      const existing = categoryMap.get(categoryName);
+      if (existing) {
+        existing.value += Math.abs(t.amount);
+      } else {
+        categoryMap.set(categoryName, {
+          name: categoryName,
+          value: Math.abs(t.amount),
+          color: categoryColor,
+        });
+      }
+    });
+
+    return Array.from(categoryMap.values()).sort((a, b) => b.value - a.value);
+  }, [transactions, categories]);
 
   const chartConfig = {
     income: {
@@ -190,7 +233,78 @@ export const Dashboard = ({
             </div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
-        </Card>
+      </Card>
+
+      {/* Expense Breakdown Pie Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Expense Breakdown by Category</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {expenseByCategory.length > 0 ? (
+            <div className="flex flex-col lg:flex-row items-center gap-6">
+              <ChartContainer config={{}} className="h-[250px] w-full max-w-[300px]">
+                <PieChart>
+                  <Pie
+                    data={expenseByCategory}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    innerRadius={60}
+                    paddingAngle={2}
+                  >
+                    {expenseByCategory.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="rounded-lg border bg-background p-2 shadow-sm">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="h-3 w-3 rounded-full"
+                                style={{ backgroundColor: data.color }}
+                              />
+                              <span className="font-medium">{data.name}</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              ${data.value.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </PieChart>
+              </ChartContainer>
+              <div className="flex flex-wrap gap-3 justify-center lg:flex-col lg:justify-start">
+                {expenseByCategory.slice(0, 6).map((category) => (
+                  <div key={category.name} className="flex items-center gap-2 text-sm">
+                    <div
+                      className="h-3 w-3 rounded-full shrink-0"
+                      style={{ backgroundColor: category.color }}
+                    />
+                    <span className="truncate max-w-[120px]">{category.name}</span>
+                    <span className="text-muted-foreground">
+                      ${category.value.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-[200px] text-muted-foreground">
+              No expense data available
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
