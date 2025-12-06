@@ -152,7 +152,15 @@ const Index = () => {
           />
         );
       default:
-        return <Dashboard accounts={accounts} transactions={transactions} />;
+        return (
+          <Dashboard
+            accounts={accounts}
+            transactions={transactions}
+            onAddTransaction={() => setShowAddTransaction(true)}
+            onAddAccount={() => setShowAddAccount(true)}
+            onAddReminder={() => {}}
+          />
+        );
     }
   };
 
